@@ -1,22 +1,17 @@
 #!/bin/bash
 
 INSTALL_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. $INSTALL_ROOT/node_config
+source $INSTALL_ROOT/env.sh
 
-LOG_NAME="$(basename $INSTALL_ROOT)"
-if [[ "$LOCALIZE_LOG" == "true" ]]; then
-  LOG_PATH="$INSTALL_ROOT/nodeos.log"
-else
-  LOG_PATH="/var/log/nodeos/$LOG_NAME.log"
-fi
+$INSTALL_ROOT/stop.sh
 
-if [[ "$DATA_DIR" != "" ]]; then
-  DATA_DIR_PATH=$DATA_DIR
-else
-  DATA_DIR_PATH=$INSTALL_ROOT/data
-fi
+$NODEOS --disable-replay-opts \
+        --genesis-json $GENESIS_FILE \
+        --data-dir $DATADIR \
+        --config-dir $INSTALL_ROOT \
+        --state-history-dir $DATADIR/state-history \
+        "$@" >> "$LOGFILE" 2>&1 &
 
-nohup $NODEOS_BIN --disable-replay-opts --data-dir $DATA_DIR_PATH --config-dir $INSTALL_ROOT "$@" >> "$LOG_PATH" 2>&1 &
 PID="$!"
 echo "nodeos started with pid $PID"
 echo $PID > $INSTALL_ROOT/nodeos.pid

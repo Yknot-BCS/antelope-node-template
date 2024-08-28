@@ -5,3 +5,5 @@ node-template.log
 nodeos.pid
 nohup.out
 .idea
+logs
+data
